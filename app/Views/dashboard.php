@@ -4,7 +4,8 @@
         <div class="row align-items-center">
             <div class="col-md-8">
                 <h3 class="fw-bold mb-1 text-dark">Selamat Datang, <?= session()->get('nama') ?>! 👋</h3>
-                <p class="mb-0 text-dark opacity-75">Kelola operasional inventaris dengan lebih cerah hari ini.</p>
+                <p class="mb-0 text-dark opacity-75">"Jaga kebersihan barang, jangan lupa dirawat, dan taro di tempat
+                    yang sesuai ya!"</p>
             </div>
         </div>
     </div>

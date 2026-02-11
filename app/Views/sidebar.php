@@ -10,29 +10,33 @@
                 <span class="text-yellow"><?= strtoupper($setting['app_name'] ?? 'YELLOWFACE') ?></span>
             </h4>
         <?php endif; ?>
-        <small class="text-white-50 d-block mt-1 fw-bold" style="font-size: 0.6rem; letter-spacing: 2px;">MANAGEMENT
-            SYSTEM</small>
+        <small class="text-white-50 d-block mt-1 fw-bold" style="font-size: 0.6rem; letter-spacing: 2px;">
+            INVENTORY MANAGEMENT SYSTEM
+        </small>
     </div>
 
     <hr style="opacity: 0.1; margin-top: 0;">
 
     <div class="nav nav-pills flex-column mb-auto px-2">
         <?php
-        $role = session()->get('role');
-        // Daftar menu dasar untuk semua role
+        $role = session()->get('role'); // Ambil role dari session
+        
+        /** * Urutan Menu Sesuai Permintaan:
+         * 1. Dashboard, 2. Barang, 3. Log Peminjaman (Semua Role)
+         * 4. Activity Log, 5. Setting, 6. Users (Hanya Admin)
+         */
         $menu_items = [
             ['dashboard', 'speedometer2', 'Dashboard'],
             ['barang', 'box-seam', 'Data Barang'],
+            ['log', 'clock-history', 'Log Peminjaman'],
         ];
 
         // Tambahkan menu khusus Admin
         if ($role === 'admin') {
+            $menu_items[] = ['activity', 'journal-text', 'Activity Log'];
+            $menu_items[] = ['setting', 'gear-fill', 'Setting'];
             $menu_items[] = ['user', 'people', 'Users'];
-            $menu_items[] = ['settings', 'gear-fill', 'Settings'];
         }
-
-        // Menu Log Akses untuk semua
-        $menu_items[] = ['log', 'clock-history', 'Log Aktivitas'];
 
         foreach ($menu_items as $m): ?>
             <a href="<?= site_url('home/' . $m[0]) ?>"
@@ -65,7 +69,8 @@
     </div>
 </nav>
 
-<div class="offcanvas offcanvas-start bg-dark text-white" tabindex="-1" id="sidebarOffcanvas" style="width: 280px;">
+<div class="offcanvas offcanvas-start bg-dark text-white d-lg-none" tabindex="-1" id="sidebarOffcanvas"
+    style="width: 280px;">
     <div class="offcanvas-header border-bottom border-secondary">
         <h5 class="offcanvas-title fw-bold text-yellow">
             <?= strtoupper($setting['app_name'] ?? 'YELLOWFACE') ?>
@@ -95,10 +100,11 @@
         </div>
 
         <hr>
-        <a href="<?= site_url('home/logout') ?>" class="nav-link text-danger py-3">
+        <a href="<?= site_url('home/logout') ?>" class="nav-link text-danger py-3 fw-bold"
+            onclick="return confirm('Keluar?')">
             <i class="bi bi-box-arrow-left me-2"></i> LOGOUT
         </a>
     </div>
 </div>
 
-<main id="content-wrapper">
+<main id="content-wrapper" class="flex-grow-1 p-4">

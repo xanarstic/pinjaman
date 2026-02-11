@@ -13,9 +13,11 @@ class LogModel extends Model
         'user_id',
         'barang_id',
         'jam_mulai',
-        'jam_selesai'
+        'jam_selesai',
+        'status',            // TAMBAHKAN INI
+        'dikonfirmasi_oleh'  // TAMBAHKAN INI
     ];
 
-    protected $useTimestamps = false; // 🔥 FIX
+    protected $useTimestamps = false;
     protected $returnType = 'array';
 }

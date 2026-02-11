@@ -6,25 +6,25 @@ use App\Models\BarangModel;
 use App\Models\SettingModel;
 use App\Models\LogModel;
 use App\Models\UserModel;
+use App\Models\ActivityLogModel;
 
 class Home extends BaseController
 {
-	protected $barang, $log, $user, $setting;
+	protected $barang, $log, $user, $setting, $activityLog;
 
 	public function __construct()
 	{
-		// Inisialisasi semua model di awal agar tidak error
 		$this->barang = new BarangModel();
 		$this->log = new LogModel();
 		$this->user = new UserModel();
-		$this->setting = new SettingModel();
+		$this->setting = new SettingModel(); // <-- PASTIKAN BARIS INI ADA
+		$this->activityLog = new ActivityLogModel();
 	}
 
-	/* ===================== GUARD (KEAMANAN) ====================== */
+	/* ===================== GUARD & HELPERS ====================== */
 
 	private function authCheck()
 	{
-		// Cek apakah user sudah login
 		if (!session()->get('logged')) {
 			redirect()->to('home/login')->send();
 			exit;
@@ -33,14 +33,26 @@ class Home extends BaseController
 
 	private function adminOnly()
 	{
-		// Proteksi fitur agar tidak diakses User biasa
 		if (session()->get('role') !== 'admin') {
-			return redirect()->to('home/dashboard')->with('error', 'Akses ditolak! Anda bukan Administrator.')->send();
+			$this->recordActivity('AKSES ILEGAL: Mencoba fitur administrator');
+			return redirect()->to('home/dashboard')->with('error', 'Akses ditolak!')->send();
 			exit;
 		}
 	}
 
-	/* ===================== AUTH (MASUK/KELUAR) ====================== */
+	private function recordActivity($action)
+	{
+		if (session()->get('logged')) {
+			$this->activityLog->insert([
+				'user_id' => session()->get('user_id'),
+				'action' => $action,
+				'url' => (string) current_url(),
+				'ip_address' => $this->request->getIPAddress(),
+			]);
+		}
+	}
+
+	/* ===================== AUTH SECTION ====================== */
 
 	public function login()
 	{
@@ -63,11 +75,14 @@ class Home extends BaseController
 			'role' => $user['role'],
 			'logged' => true
 		]);
+
+		$this->recordActivity('Login ke Sistem');
 		return redirect()->to('home/dashboard');
 	}
 
 	public function logout()
 	{
+		$this->recordActivity('Logout dari Sistem');
 		session()->destroy();
 		return redirect()->to('home/login');
 	}
@@ -77,10 +92,12 @@ class Home extends BaseController
 	public function dashboard()
 	{
 		$this->authCheck();
+		$this->recordActivity('Melihat Dashboard');
+
 		$data = [
 			'title' => 'Dashboard',
 			'active' => 'dashboard',
-			'setting' => $this->setting->find(1), // Fix Undefined Variable
+			'setting' => $this->setting->find(1),
 			'totalBarang' => $this->barang->countAll(),
 			'barangDipakai' => $this->barang->where('status', 'dipakai')->countAllResults(),
 			'totalUser' => $this->user->countAll()
@@ -96,14 +113,23 @@ class Home extends BaseController
 	public function barang()
 	{
 		$this->authCheck();
+		$filter = $this->request->getGet('filter') ?? 'all';
+		$this->recordActivity('Melihat Data Barang');
+
+		$builder = $this->barang->select('barang.*, users.nama AS user_nama')
+			->join('users', 'users.id = barang.dipakai_oleh', 'left');
+
+		if ($filter === 'dipakai')
+			$builder->where('barang.status', 'dipakai');
+		if ($filter === 'tersedia')
+			$builder->where('barang.status', 'tersedia');
+
 		$data = [
 			'title' => 'Data Barang',
 			'active' => 'barang',
+			'filter' => $filter,
 			'setting' => $this->setting->find(1),
-			'barang' => $this->barang
-				->select('barang.*, users.nama AS user_nama')
-				->join('users', 'users.id = barang.dipakai_oleh', 'left')
-				->findAll()
+			'barang' => $builder->findAll()
 		];
 		echo view('header', $data);
 		echo view('sidebar', $data);
@@ -115,14 +141,18 @@ class Home extends BaseController
 	{
 		$this->authCheck();
 		$this->adminOnly();
+		$nama = $this->request->getPost('nama_barang');
 		$file = $this->request->getFile('foto');
-		$nama = null;
+		$foto = null;
+
 		if ($file && $file->isValid()) {
-			$nama = $file->getRandomName();
-			$file->move('uploads/barang', $nama);
+			$foto = $file->getRandomName();
+			$file->move('uploads/barang', $foto);
 		}
-		$this->barang->insert(['nama_barang' => $this->request->getPost('nama_barang'), 'foto' => $nama, 'status' => 'tersedia']);
-		return redirect()->to('home/barang')->with('success', 'Barang berhasil ditambah!');
+
+		$this->barang->insert(['nama_barang' => $nama, 'foto' => $foto, 'status' => 'tersedia']);
+		$this->recordActivity('Menambah Barang: ' . $nama);
+		return redirect()->to('home/barang')->with('success', 'Barang ditambah!');
 	}
 
 	public function updateBarang()
@@ -133,11 +163,12 @@ class Home extends BaseController
 		$data = ['nama_barang' => $this->request->getPost('nama_barang')];
 		$file = $this->request->getFile('foto');
 		if ($file && $file->isValid()) {
-			$nama = $file->getRandomName();
-			$file->move('uploads/barang', $nama);
-			$data['foto'] = $nama;
+			$foto = $file->getRandomName();
+			$file->move('uploads/barang', $foto);
+			$data['foto'] = $foto;
 		}
 		$this->barang->update($id, $data);
+		$this->recordActivity('Mengubah Barang ID: ' . $id);
 		return redirect()->to('home/barang')->with('success', 'Barang diperbarui!');
 	}
 
@@ -145,27 +176,42 @@ class Home extends BaseController
 	{
 		$this->authCheck();
 		$this->adminOnly();
+		$this->recordActivity('Menghapus Barang ID: ' . $id);
 		$this->barang->delete($id);
 		return redirect()->to('home/barang');
 	}
 
-	/* ===================== LOG AKTIVITAS (PEMINJAMAN) ====================== */
+	/* ===================== WORKFLOW PEMINJAMAN ====================== */
 
 	public function log()
 	{
 		$this->authCheck();
+		$role = session()->get('role');
+		$uid = session()->get('user_id');
+		$statusFilter = $this->request->getGet('status') ?? 'dipinjam';
+
+		$builder = $this->log->select('log_peminjaman.*, users.nama AS user_nama, GROUP_CONCAT(barang.nama_barang SEPARATOR ", ") AS barang_nama')
+			->join('users', 'users.id = log_peminjaman.user_id', 'left')
+			->join('barang', 'barang.id = log_peminjaman.barang_id', 'left');
+
+		// Privasi Data
+		if ($role !== 'admin' && $role !== 'asistant')
+			$builder->where('log_peminjaman.user_id', $uid);
+
+		if ($statusFilter !== 'all')
+			$builder->where('log_peminjaman.status', $statusFilter);
+
 		$data = [
-			'title' => 'Log Aktivitas',
+			'title' => 'Log Peminjaman',
 			'active' => 'log',
 			'setting' => $this->setting->find(1),
-			'logs' => $this->log
-				->select('log_peminjaman.user_id, log_peminjaman.jam_mulai, log_peminjaman.jam_selesai, users.nama AS user_nama, GROUP_CONCAT(barang.nama_barang SEPARATOR ", ") AS barang_nama')
-				->join('users', 'users.id = log_peminjaman.user_id', 'left')
-				->join('barang', 'barang.id = log_peminjaman.barang_id', 'left')
-				->groupBy('log_peminjaman.user_id, log_peminjaman.jam_mulai')->orderBy('log_peminjaman.jam_mulai', 'DESC')->findAll(),
+			'logs' => $builder->groupBy('log_peminjaman.user_id, log_peminjaman.jam_mulai')->orderBy('log_peminjaman.jam_mulai', 'DESC')->findAll(),
 			'users' => $this->user->findAll(),
-			'barang' => $this->barang->where('status', 'tersedia')->findAll()
+			'barang' => $this->barang->where('status', 'tersedia')->findAll(),
+			'filter' => ['status' => $statusFilter]
 		];
+
+		$this->recordActivity('Melihat Log Peminjaman');
 		echo view('header', $data);
 		echo view('sidebar', $data);
 		echo view('log', $data);
@@ -175,45 +221,76 @@ class Home extends BaseController
 	public function pinjamLog()
 	{
 		$this->authCheck();
-		$uid = $this->request->getPost('user_id');
+		$uid = (session()->get('role') === 'admin') ? $this->request->getPost('user_id') : session()->get('user_id');
 		$bids = $this->request->getPost('barang_id');
 		$now = date('Y-m-d H:i:s');
+
 		foreach ($bids as $id) {
 			$this->barang->update($id, ['status' => 'dipakai', 'dipakai_oleh' => $uid, 'jam_mulai' => $now]);
-			$this->log->insert(['user_id' => $uid, 'barang_id' => $id, 'jam_mulai' => $now]);
+			$this->log->insert(['user_id' => $uid, 'barang_id' => $id, 'jam_mulai' => $now, 'status' => 'dipinjam']);
 		}
-		return redirect()->to('home/log')->with('success', 'Peminjaman dicatat!');
+		$this->recordActivity('Memulai Peminjaman Barang');
+		return redirect()->to('home/log')->with('success', 'Barang berhasil dipinjam!');
 	}
 
+	// Step 1: User mengembalikan barang
 	public function selesai($uid, $jam)
 	{
 		$this->authCheck();
-		$this->adminOnly();
 		$jam = urldecode($jam);
+
+		// Proteksi kepemilikan
+		if (session()->get('role') !== 'admin' && $uid != session()->get('user_id'))
+			return redirect()->back();
+
+		$this->log->where(['user_id' => $uid, 'jam_mulai' => $jam])->set(['status' => 'menunggu_konfirmasi'])->update();
+
+		$logs = $this->log->where(['user_id' => $uid, 'jam_mulai' => $jam])->findAll();
+		foreach ($logs as $l) {
+			$this->barang->update($l['barang_id'], ['status' => 'menunggu_konfirmasi']);
+		}
+
+		$this->recordActivity('Mengembalikan barang (Menunggu Verifikasi)');
+		return redirect()->back()->with('success', 'Barang dikembalikan. Menunggu cek fisik.');
+	}
+
+	// Step 2: Admin/Assistant verifikasi
+	public function konfirmasi($uid, $jam)
+	{
+		$this->authCheck();
+		if (!in_array(session()->get('role'), ['admin', 'asistant']))
+			return redirect()->back();
+
+		$jam = urldecode($jam);
+		$this->log->where(['user_id' => $uid, 'jam_mulai' => $jam])
+			->set(['status' => 'selesai', 'jam_selesai' => date('Y-m-d H:i:s'), 'dikonfirmasi_oleh' => session()->get('user_id')])
+			->update();
+
 		$logs = $this->log->where(['user_id' => $uid, 'jam_mulai' => $jam])->findAll();
 		foreach ($logs as $l) {
 			$this->barang->update($l['barang_id'], ['status' => 'tersedia', 'dipakai_oleh' => null, 'jam_mulai' => null]);
 		}
-		$this->log->where(['user_id' => $uid, 'jam_mulai' => $jam])->set(['jam_selesai' => date('Y-m-d H:i:s')])->update();
-		return redirect()->back()->with('success', 'Barang dikembalikan!');
-	}
 
-	public function deleteLogBatch($uid, $jam)
-	{
-		$this->authCheck();
-		$this->adminOnly();
-		$jam = urldecode($jam);
-		$this->log->where(['user_id' => $uid, 'jam_mulai' => $jam])->delete();
-		return redirect()->back();
+		$this->recordActivity('Verifikasi Peminjaman Selesai');
+		return redirect()->back()->with('success', 'Verifikasi berhasil!');
 	}
 
 	/* ===================== MANAJEMEN USER ====================== */
 
+	/* ===================== MANAJEMEN USER (UPDATED) ====================== */
+
 	public function user()
 	{
 		$this->authCheck();
-		$this->adminOnly();
-		$data = ['title' => 'Users', 'active' => 'users', 'setting' => $this->setting->find(1), 'users' => $this->user->findAll()];
+		$this->adminOnly(); // Hanya admin yang bisa kelola user
+
+		$data = [
+			'title' => 'Manajemen User',
+			'active' => 'user',
+			'setting' => $this->setting->find(1),
+			'users' => $this->user->orderBy('nama', 'ASC')->findAll()
+		];
+
 		echo view('header', $data);
 		echo view('sidebar', $data);
 		echo view('user', $data);
@@ -224,8 +301,17 @@ class Home extends BaseController
 	{
 		$this->authCheck();
 		$this->adminOnly();
-		$this->user->insert(['nama' => $this->request->getPost('nama'), 'email' => $this->request->getPost('email'), 'password' => password_hash($this->request->getPost('password'), PASSWORD_DEFAULT), 'role' => $this->request->getPost('role')]);
-		return redirect()->to('home/user');
+
+		$data = [
+			'nama' => $this->request->getPost('nama'),
+			'email' => $this->request->getPost('email'),
+			'password' => password_hash($this->request->getPost('password'), PASSWORD_DEFAULT),
+			'role' => $this->request->getPost('role') // Akan menerima 'admin', 'user', atau 'asistant'
+		];
+
+		$this->user->insert($data);
+		$this->recordActivity('Mendaftarkan User Baru: ' . $data['nama']);
+		return redirect()->to('home/user')->with('success', 'User berhasil didaftarkan.');
 	}
 
 	public function updateUser()
@@ -233,55 +319,118 @@ class Home extends BaseController
 		$this->authCheck();
 		$this->adminOnly();
 		$id = $this->request->getPost('id');
-		$data = ['nama' => $this->request->getPost('nama'), 'email' => $this->request->getPost('email'), 'role' => $this->request->getPost('role')];
-		if ($this->request->getPost('password')) {
-			$data['password'] = password_hash($this->request->getPost('password'), PASSWORD_DEFAULT);
+
+		$data = [
+			'nama' => $this->request->getPost('nama'),
+			'email' => $this->request->getPost('email'),
+			'role' => $this->request->getPost('role')
+		];
+
+		// Update password hanya jika diisi
+		$password = $this->request->getPost('password');
+		if (!empty($password)) {
+			$data['password'] = password_hash($password, PASSWORD_DEFAULT);
 		}
+
 		$this->user->update($id, $data);
-		return redirect()->to('home/user');
+		$this->recordActivity('Memperbarui Profil User ID: ' . $id);
+		return redirect()->to('home/user')->with('success', 'Data user berhasil diperbarui.');
 	}
 
 	public function deleteUser($id)
 	{
 		$this->authCheck();
 		$this->adminOnly();
-		if ($id == session()->get('user_id'))
-			return redirect()->back()->with('error', 'Jangan hapus diri sendiri!');
+
+		// Proteksi: Admin tidak bisa menghapus dirinya sendiri
+		if ($id == session()->get('user_id')) {
+			return redirect()->to('home/user')->with('error', 'Anda tidak bisa menghapus akun sendiri!');
+		}
+
 		$this->user->delete($id);
-		return redirect()->to('home/user');
+		$this->recordActivity('Menghapus User ID: ' . $id);
+		return redirect()->to('home/user')->with('success', 'User telah dihapus.');
 	}
 
-	/* ===================== SETTINGS ====================== */
+	/* ===================== AUDIT & ERROR ====================== */
 
-	public function settings()
+	public function activity()
 	{
 		$this->authCheck();
 		$this->adminOnly();
-		$data = ['title' => 'Settings', 'active' => 'settings', 'setting' => $this->setting->find(1)];
+		$builder = $this->activityLog->select('activity_logs.*, users.nama AS user_nama')->join('users', 'users.id = activity_logs.user_id', 'left');
+
+		$data = [
+			'title' => 'Audit Trail',
+			'active' => 'activity',
+			'setting' => $this->setting->find(1),
+			'activities' => $builder->orderBy('created_at', 'DESC')->findAll(),
+			'users' => $this->user->findAll()
+		];
+		echo view('header', $data);
+		echo view('sidebar', $data);
+		echo view('activity', $data);
+		echo view('footer');
+	}
+
+	public function notFound()
+	{
+		$data = ['setting' => $this->setting->find(1), 'logged' => session()->get('logged')];
+		return view('custom_404', $data); //
+	}
+
+	/* ===================== PENGATURAN SISTEM (SETTINGS) ====================== */
+
+	public function setting()
+	{
+		$this->authCheck();
+		$this->adminOnly(); // Hanya admin yang boleh masuk sini
+		$this->recordActivity('Membuka Pengaturan Sistem');
+
+		$data = [
+			'title' => 'Pengaturan Sistem',
+			'active' => 'setting',
+			'setting' => $this->setting->find(1), // Mengambil data id 1
+		];
+
+		// Pastikan dipanggil lengkap agar header/sidebar muncul
 		echo view('header', $data);
 		echo view('sidebar', $data);
 		echo view('settings', $data);
 		echo view('footer');
 	}
 
-	public function updateSettings()
+	public function updateSetting()
 	{
 		$this->authCheck();
 		$this->adminOnly();
-		$data = ['app_name' => $this->request->getPost('app_name'), 'sidebar_type' => $this->request->getPost('sidebar_type')];
-		$l = $this->request->getFile('logo');
-		if ($l && $l->isValid()) {
-			$n = $l->getRandomName();
-			$l->move('uploads/settings', $n);
-			$data['logo'] = $n;
+
+		$id = 1; // ID default setting
+		$data = [
+			'app_name' => $this->request->getPost('app_name'),
+			'sidebar_type' => $this->request->getPost('sidebar_type'),
+		];
+
+		// LOGIKA UPLOAD LOGO
+		$logoFile = $this->request->getFile('logo');
+		if ($logoFile && $logoFile->isValid() && !$logoFile->hasMoved()) {
+			$newLogoName = $logoFile->getRandomName();
+			$logoFile->move('uploads/settings', $newLogoName);
+			$data['logo'] = $newLogoName;
 		}
-		$f = $this->request->getFile('favicon');
-		if ($f && $f->isValid()) {
-			$n = $f->getRandomName();
-			$f->move('uploads/settings', $n);
-			$data['favicon'] = $n;
+
+		// LOGIKA UPLOAD FAVICON
+		$faviconFile = $this->request->getFile('favicon');
+		if ($faviconFile && $faviconFile->isValid() && !$faviconFile->hasMoved()) {
+			$newFavName = $faviconFile->getRandomName();
+			$faviconFile->move('uploads/settings', $newFavName);
+			$data['favicon'] = $newFavName;
 		}
-		$this->setting->update(1, $data);
-		return redirect()->back()->with('success', 'Pengaturan diperbarui!');
+
+		$this->setting->update($id, $data);
+		$this->recordActivity('Memperbarui Pengaturan Sistem');
+
+		return redirect()->to('home/setting')->with('success', 'Pengaturan berhasil diperbarui!');
 	}
+
 }
