@@ -1,4 +1,5 @@
 <div class="container-fluid">
+<<<<<<< HEAD
     <div class="row align-items-center mb-4 g-3">
         <div class="col-12 col-md">
             <h3 class="fw-bold text-main m-0">
@@ -33,28 +34,62 @@
             <?php endif; ?>
         </form>
     </div>
+=======
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold text-main">
+            <i class="bi bi-box-seam me-2 text-yellow"></i>Data Barang
+        </h3>
+        <?php if (session()->get('role') === 'admin'): ?>
+            <button class="btn btn-primary px-4 shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#createModal">
+                <i class="bi bi-plus-lg me-1"></i> Tambah Barang
+            </button>
+        <?php endif; ?>
+    </div>
+
+    <?php if (session()->getFlashdata('success')): ?>
+        <div class="alert alert-success border-0 shadow-sm mb-4"><?= session()->getFlashdata('success') ?></div>
+    <?php endif; ?>
+>>>>>>> 76654e63e3b235c2566e0adcd60cb34f8944b1fc
 
     <div class="row g-4">
         <?php if (empty($barang)): ?>
             <div class="col-12 text-center py-5">
                 <i class="bi bi-box-fill display-1 text-muted opacity-25"></i>
+<<<<<<< HEAD
                 <p class="text-muted mt-3">Data barang tidak ditemukan.</p>
+=======
+                <p class="text-muted mt-3">Belum ada data barang tersedia.</p>
+>>>>>>> 76654e63e3b235c2566e0adcd60cb34f8944b1fc
             </div>
         <?php endif; ?>
 
         <?php foreach ($barang as $b): ?>
+<<<<<<< HEAD
             <div class="col-6 col-md-4 col-lg-3">
                 <div class="card h-100 shadow-sm position-relative overflow-hidden theme-card card-barang <?= ($b['status'] === 'dipakai') ? 'item-dipakai' : '' ?>">
                     
                     <span class="badge position-absolute top-0 end-0 m-3 <?= $b['status'] === 'dipakai' ? 'bg-danger' : 'bg-success' ?>" style="z-index: 2; font-size: 0.7rem;">
                         <?= strtoupper(!empty($b['status']) ? $b['status'] : 'tersedia') ?>
+=======
+            <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+                <div class="card h-100 shadow-sm position-relative overflow-hidden theme-card card-barang <?= ($b['status'] === 'dipakai') ? 'item-dipakai' : '' ?>">
+                    
+                    <span class="badge position-absolute top-0 end-0 m-3 <?= $b['status'] === 'dipakai' ? 'bg-danger' : 'bg-success' ?>" style="z-index: 2; font-size: 0.7rem;">
+                        <?= strtoupper($b['status']) ?>
+>>>>>>> 76654e63e3b235c2566e0adcd60cb34f8944b1fc
                     </span>
                     
                     <div class="image-box theme-img-bg text-center">
                         <?php if ($b['foto']): ?>
+<<<<<<< HEAD
                             <img src="<?= base_url('uploads/barang/'.$b['foto']) ?>" class="card-img-top img-barang-responsive" style="object-fit: cover;">
                         <?php else: ?>
                             <div class="d-flex align-items-center justify-content-center img-barang-responsive">
+=======
+                            <img src="<?= base_url('uploads/barang/'.$b['foto']) ?>" class="card-img-top" style="height: 200px; object-fit: cover;">
+                        <?php else: ?>
+                            <div class="d-flex align-items-center justify-content-center" style="height: 200px;">
+>>>>>>> 76654e63e3b235c2566e0adcd60cb34f8944b1fc
                                 <i class="bi bi-image text-muted fs-1 opacity-50"></i>
                             </div>
                         <?php endif; ?>
@@ -63,17 +98,28 @@
                     <div class="card-body d-flex flex-column">
                         <h6 class="fw-bold mb-1 text-truncate text-main"><?= esc($b['nama_barang']) ?></h6>
                         
+<<<<<<< HEAD
                         <div class="small mb-2 mb-md-3 flex-grow-1" style="font-size: 0.75rem;">
                             <?php if ($b['status'] === 'dipakai'): ?>
                                 <div class="p-2 rounded status-pinjam-box mt-2">
                                     <i class="bi bi-person-fill me-1"></i> <span class="d-none d-md-inline">Dipakai:</span> <strong class="text-main"><?= esc($b['user_nama']) ?></strong>
+=======
+                        <div class="small mb-3 flex-grow-1">
+                            <?php if ($b['status'] === 'dipakai'): ?>
+                                <div class="p-2 rounded status-pinjam-box mt-2">
+                                    <i class="bi bi-person-fill me-1"></i> Dipakai: <strong class="text-main"><?= esc($b['user_nama']) ?></strong>
+>>>>>>> 76654e63e3b235c2566e0adcd60cb34f8944b1fc
                                 </div>
                             <?php else: ?>
                                 <span class="text-secondary small"><i class="bi bi-check-circle-fill text-success me-1"></i> Tersedia di gudang</span>
                             <?php endif; ?>
                         </div>
 
+<<<<<<< HEAD
                         <div class="d-flex gap-1 gap-md-2 flex-column flex-md-row">
+=======
+                        <div class="d-flex gap-2">
+>>>>>>> 76654e63e3b235c2566e0adcd60cb34f8944b1fc
                             <?php if (session()->get('role') === 'admin'): ?>
                                 <button class="btn btn-sm btn-outline-warning w-100 fw-bold" data-bs-toggle="modal" data-bs-target="#editModal" 
                                         data-id="<?= $b['id'] ?>" data-nama="<?= esc($b['nama_barang']) ?>" data-foto="<?= $b['foto'] ?>">
@@ -176,12 +222,15 @@
     .item-dipakai .image-box img { filter: brightness(0.5); }
 
     .bg-yellow { background-color: var(--primary-yellow) !important; }
+<<<<<<< HEAD
 
     /* Responsive Image Height */
     .img-barang-responsive { height: 140px; width: 100%; }
     @media (min-width: 768px) {
         .img-barang-responsive { height: 200px; }
     }
+=======
+>>>>>>> 76654e63e3b235c2566e0adcd60cb34f8944b1fc
 </style>
 
 <script>
@@ -214,6 +263,7 @@
     }
 
     function confirmDelete(id) {
+<<<<<<< HEAD
         const isDark = document.documentElement.getAttribute('data-bs-theme') === 'dark';
         Swal.fire({
             title: 'Hapus Barang?',
@@ -231,5 +281,10 @@
                 window.location.href = "<?= site_url('home/deleteBarang/') ?>" + id;
             }
         });
+=======
+        if(confirm('Hapus barang ini secara permanen dari database?')) {
+            window.location.href="<?= site_url('home/deleteBarang/') ?>"+id;
+        }
+>>>>>>> 76654e63e3b235c2566e0adcd60cb34f8944b1fc
     }
 </script>

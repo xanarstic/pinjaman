@@ -63,7 +63,11 @@
 
     <div class="px-2">
         <a href="<?= site_url('home/logout') ?>" class="nav-link text-danger fw-bold d-flex align-items-center p-3"
+<<<<<<< HEAD
             style="border-radius: 12px;" onclick="event.preventDefault(); confirmLogout(this.href)">
+=======
+            style="border-radius: 12px;" onclick="return confirm('Keluar dari sistem?')">
+>>>>>>> 76654e63e3b235c2566e0adcd60cb34f8944b1fc
             <i class="bi bi-box-arrow-left me-2"></i> LOGOUT
         </a>
     </div>
@@ -101,7 +105,11 @@
 
         <hr>
         <a href="<?= site_url('home/logout') ?>" class="nav-link text-danger py-3 fw-bold"
+<<<<<<< HEAD
             onclick="event.preventDefault(); confirmLogout(this.href)">
+=======
+            onclick="return confirm('Keluar?')">
+>>>>>>> 76654e63e3b235c2566e0adcd60cb34f8944b1fc
             <i class="bi bi-box-arrow-left me-2"></i> LOGOUT
         </a>
     </div>

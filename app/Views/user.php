@@ -1,4 +1,5 @@
 <div class="container-fluid">
+<<<<<<< HEAD
     <div class="row align-items-center mb-4 g-3">
         <div class="col-12 col-md">
             <h3 class="fw-bold text-main m-0"><i class="bi bi-people-fill me-2 text-yellow"></i>Manajemen User</h3>
@@ -10,6 +11,22 @@
         </div>
     </div>
 
+=======
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold text-main"><i class="bi bi-people-fill me-2 text-yellow"></i>Manajemen User</h3>
+        <button class="btn btn-primary px-4 shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#createUserModal">
+            <i class="bi bi-person-plus-fill me-1"></i> Tambah User
+        </button>
+    </div>
+
+    <?php if (session()->getFlashdata('success')): ?>
+        <div class="alert alert-success border-0 shadow-sm mb-4"><?= session()->getFlashdata('success') ?></div>
+    <?php endif; ?>
+    <?php if (session()->getFlashdata('error')): ?>
+        <div class="alert alert-danger border-0 shadow-sm mb-4"><?= session()->getFlashdata('error') ?></div>
+    <?php endif; ?>
+
+>>>>>>> 76654e63e3b235c2566e0adcd60cb34f8944b1fc
     <div class="card border-0 shadow-sm overflow-hidden theme-card" style="border-radius: 20px;">
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0 theme-table">
@@ -175,6 +192,7 @@
     }
 
     function confirmDeleteUser(id) {
+<<<<<<< HEAD
         const isDark = document.documentElement.getAttribute('data-bs-theme') === 'dark';
         Swal.fire({
             title: 'Hapus User?',
@@ -192,5 +210,10 @@
                 window.location.href = "<?= site_url('home/deleteUser/') ?>" + id;
             }
         });
+=======
+        if (confirm('Apakah Anda yakin ingin menghapus user ini?')) {
+            window.location.href = "<?= site_url('home/deleteUser/') ?>" + id;
+        }
+>>>>>>> 76654e63e3b235c2566e0adcd60cb34f8944b1fc
     }
 </script>

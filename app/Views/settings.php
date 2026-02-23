@@ -52,9 +52,13 @@
     function preview(input, target) {
         if (input.files && input.files[0]) {
             var reader = new FileReader();
+<<<<<<< HEAD
             reader.onload = function(e) {
                 $(target).attr('src', e.target.result).removeClass('d-none');
             }
+=======
+            reader.onload = function (e) { $(target).attr('src', e.target.result).removeClass('d-none'); }
+>>>>>>> 76654e63e3b235c2566e0adcd60cb34f8944b1fc
             reader.readAsDataURL(input.files[0]);
         }
     }

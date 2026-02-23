@@ -14,7 +14,10 @@ class Home extends BaseController
 
 	public function __construct()
 	{
+<<<<<<< HEAD
 		date_default_timezone_set('Asia/Jakarta');
+=======
+>>>>>>> 76654e63e3b235c2566e0adcd60cb34f8944b1fc
 		$this->barang = new BarangModel();
 		$this->log = new LogModel();
 		$this->user = new UserModel();
@@ -57,6 +60,7 @@ class Home extends BaseController
 
 	public function login()
 	{
+<<<<<<< HEAD
 		// Generate Math CAPTCHA sederhana
 		$num1 = rand(1, 9);
 		$num2 = rand(1, 9);
@@ -64,16 +68,22 @@ class Home extends BaseController
 		
 		$data = ['captcha_text' => "$num1 + $num2 = ?"];
 		return view('login', $data);
+=======
+		return view('login');
+>>>>>>> 76654e63e3b235c2566e0adcd60cb34f8944b1fc
 	}
 
 	public function loginProcess()
 	{
+<<<<<<< HEAD
 		// 1. Cek Human Verification (Anti-Bot)
 		$inputCaptcha = $this->request->getPost('captcha');
 		if ($inputCaptcha != session()->get('captcha_res')) {
 			return redirect()->back()->with('error', 'Verifikasi gagal! Jawaban hitungan salah.');
 		}
 
+=======
+>>>>>>> 76654e63e3b235c2566e0adcd60cb34f8944b1fc
 		$email = $this->request->getPost('email');
 		$password = $this->request->getPost('password');
 		$user = $this->user->where('email', $email)->first();
@@ -127,7 +137,10 @@ class Home extends BaseController
 	{
 		$this->authCheck();
 		$filter = $this->request->getGet('filter') ?? 'all';
+<<<<<<< HEAD
 		$keyword = $this->request->getGet('keyword');
+=======
+>>>>>>> 76654e63e3b235c2566e0adcd60cb34f8944b1fc
 		$this->recordActivity('Melihat Data Barang');
 
 		$builder = $this->barang->select('barang.*, users.nama AS user_nama')
@@ -138,15 +151,21 @@ class Home extends BaseController
 		if ($filter === 'tersedia')
 			$builder->where('barang.status', 'tersedia');
 
+<<<<<<< HEAD
 		if ($keyword) {
 			$builder->like('barang.nama_barang', $keyword);
 		}
 
+=======
+>>>>>>> 76654e63e3b235c2566e0adcd60cb34f8944b1fc
 		$data = [
 			'title' => 'Data Barang',
 			'active' => 'barang',
 			'filter' => $filter,
+<<<<<<< HEAD
 			'keyword' => $keyword,
+=======
+>>>>>>> 76654e63e3b235c2566e0adcd60cb34f8944b1fc
 			'setting' => $this->setting->find(1),
 			'barang' => $builder->findAll()
 		];
@@ -208,17 +227,21 @@ class Home extends BaseController
 		$role = session()->get('role');
 		$uid = session()->get('user_id');
 		$statusFilter = $this->request->getGet('status') ?? 'dipinjam';
+<<<<<<< HEAD
 		
 		// Ambil Parameter Search
 		$keyword = $this->request->getGet('keyword');
 		$startDate = $this->request->getGet('start_date');
 		$endDate = $this->request->getGet('end_date');
 		$targetUser = $this->request->getGet('target_user'); // Khusus Admin
+=======
+>>>>>>> 76654e63e3b235c2566e0adcd60cb34f8944b1fc
 
 		$builder = $this->log->select('log_peminjaman.*, users.nama AS user_nama, GROUP_CONCAT(barang.nama_barang SEPARATOR ", ") AS barang_nama')
 			->join('users', 'users.id = log_peminjaman.user_id', 'left')
 			->join('barang', 'barang.id = log_peminjaman.barang_id', 'left');
 
+<<<<<<< HEAD
 		// 1. Filter Keyword (Nama Barang)
 		if ($keyword) {
 			$builder->like('barang.nama_barang', $keyword);
@@ -242,6 +265,12 @@ class Home extends BaseController
 		}
 
 		// 4. Filter Status Tab
+=======
+		// Privasi Data
+		if ($role !== 'admin' && $role !== 'asistant')
+			$builder->where('log_peminjaman.user_id', $uid);
+
+>>>>>>> 76654e63e3b235c2566e0adcd60cb34f8944b1fc
 		if ($statusFilter !== 'all')
 			$builder->where('log_peminjaman.status', $statusFilter);
 
@@ -252,6 +281,7 @@ class Home extends BaseController
 			'logs' => $builder->groupBy('log_peminjaman.user_id, log_peminjaman.jam_mulai')->orderBy('log_peminjaman.jam_mulai', 'DESC')->findAll(),
 			'users' => $this->user->findAll(),
 			'barang' => $this->barang->where('status', 'tersedia')->findAll(),
+<<<<<<< HEAD
 			'filter' => [
 				'status' => $statusFilter,
 				'keyword' => $keyword,
@@ -259,6 +289,9 @@ class Home extends BaseController
 				'end_date' => $endDate,
 				'target_user' => $targetUser
 			]
+=======
+			'filter' => ['status' => $statusFilter]
+>>>>>>> 76654e63e3b235c2566e0adcd60cb34f8944b1fc
 		];
 
 		$this->recordActivity('Melihat Log Peminjaman');
@@ -274,6 +307,7 @@ class Home extends BaseController
 		$uid = (session()->get('role') === 'admin') ? $this->request->getPost('user_id') : session()->get('user_id');
 		$bids = $this->request->getPost('barang_id');
 		$now = date('Y-m-d H:i:s');
+<<<<<<< HEAD
 		
 		// Jika Admin yang input, langsung ACC. Jika User/Assistant, butuh persetujuan.
 		$isAdmin = session()->get('role') === 'admin';
@@ -288,6 +322,15 @@ class Home extends BaseController
 		$this->recordActivity($isAdmin ? 'Memulai Peminjaman Barang' : 'Request Peminjaman Barang');
 		$redirectTab = $isAdmin ? 'dipinjam' : 'menunggu_persetujuan';
 		return redirect()->to('home/log?status=' . $redirectTab)->with('success', $isAdmin ? 'Barang berhasil dipinjam!' : 'Permintaan terkirim, menunggu persetujuan.');
+=======
+
+		foreach ($bids as $id) {
+			$this->barang->update($id, ['status' => 'dipakai', 'dipakai_oleh' => $uid, 'jam_mulai' => $now]);
+			$this->log->insert(['user_id' => $uid, 'barang_id' => $id, 'jam_mulai' => $now, 'status' => 'dipinjam']);
+		}
+		$this->recordActivity('Memulai Peminjaman Barang');
+		return redirect()->to('home/log')->with('success', 'Barang berhasil dipinjam!');
+>>>>>>> 76654e63e3b235c2566e0adcd60cb34f8944b1fc
 	}
 
 	// Step 1: User mengembalikan barang
@@ -332,6 +375,7 @@ class Home extends BaseController
 		return redirect()->back()->with('success', 'Verifikasi berhasil!');
 	}
 
+<<<<<<< HEAD
 	// Step Baru: Admin/Assistant menyetujui peminjaman awal
 	public function approvePinjam($uid, $jam)
 	{
@@ -374,6 +418,8 @@ class Home extends BaseController
 		return redirect()->back()->with('success', 'Permintaan peminjaman dibatalkan.');
 	}
 
+=======
+>>>>>>> 76654e63e3b235c2566e0adcd60cb34f8944b1fc
 	/* ===================== MANAJEMEN USER ====================== */
 
 	/* ===================== MANAJEMEN USER (UPDATED) ====================== */

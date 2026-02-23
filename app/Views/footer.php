@@ -28,6 +28,7 @@
     document.addEventListener('DOMContentLoaded', () => {
         const currentTheme = htmlTag.getAttribute('data-bs-theme');
         syncThemeUI(currentTheme);
+<<<<<<< HEAD
     });
 
     // --- FITUR INTERAKTIF (SweetAlert2 & Loading State) ---
@@ -86,6 +87,9 @@
                 btn.style.pointerEvents = 'none'; // Mencegah klik ganda
             }
         });
+=======
+        setTimeout(function () { $(".alert").fadeOut('slow'); }, 3000);
+>>>>>>> 76654e63e3b235c2566e0adcd60cb34f8944b1fc
     });
 </script>
 </body>
