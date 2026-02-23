@@ -57,6 +57,10 @@ class Home extends BaseController
 
 	public function login()
 	{
+		if (session()->get('logged')) {
+			return redirect()->to('home/dashboard');
+		}
+
 		// Generate Math CAPTCHA sederhana
 		$num1 = rand(1, 9);
 		$num2 = rand(1, 9);
@@ -70,6 +74,11 @@ class Home extends BaseController
 	{
 		// 1. Cek Human Verification (Anti-Bot)
 		$inputCaptcha = $this->request->getPost('captcha');
+		
+		if (!session()->has('captcha_res')) {
+			return redirect()->back()->with('error', 'Sesi kadaluarsa atau IP berubah. Silakan refresh halaman.');
+		}
+
 		if ($inputCaptcha != session()->get('captcha_res')) {
 			return redirect()->back()->with('error', 'Verifikasi gagal! Jawaban hitungan salah.');
 		}
