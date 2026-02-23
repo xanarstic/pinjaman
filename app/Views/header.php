@@ -14,10 +14,7 @@
         rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-<<<<<<< HEAD
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-=======
->>>>>>> 76654e63e3b235c2566e0adcd60cb34f8944b1fc
 
     <style>
         :root {
@@ -111,15 +108,12 @@
                 align-items: center;
             }
         }
-<<<<<<< HEAD
 
         /* Mobile Optimization for Nav Pills */
         .nav-pills::-webkit-scrollbar {
             display: none; /* Hide scrollbar for Chrome, Safari and Opera */
         }
         .nav-pills { -ms-overflow-style: none; scrollbar-width: none; }
-=======
->>>>>>> 76654e63e3b235c2566e0adcd60cb34f8944b1fc
     </style>
 
     <script>
@@ -129,7 +123,6 @@
 </head>
 
 <body>
-<<<<<<< HEAD
     <header class="mobile-nav shadow-sm position-relative">
         <div class="position-absolute start-50 translate-middle-x fw-bold d-flex align-items-center text-nowrap" style="font-size: 1.5rem; height: 100%;">
             <?php if (!empty($setting['logo'])): ?>
@@ -141,19 +134,6 @@
         <button class="btn text-white border-0 ms-auto" type="button" data-bs-toggle="offcanvas"
             data-bs-target="#sidebarOffcanvas">
             <i class="bi bi-list" style="font-size: 2.2rem;"></i>
-=======
-    <header class="mobile-nav shadow-sm">
-        <span class="fw-bold">
-            <?php if (!empty($setting['logo'])): ?>
-                <img src="<?= base_url('uploads/settings/' . $setting['logo']) ?>" style="max-height: 30px;">
-            <?php else: ?>
-                <span class="text-yellow">YELLOW</span>FACE
-            <?php endif; ?>
-        </span>
-        <button class="btn text-white border-0" type="button" data-bs-toggle="offcanvas"
-            data-bs-target="#sidebarOffcanvas">
-            <i class="bi bi-list fs-2"></i>
->>>>>>> 76654e63e3b235c2566e0adcd60cb34f8944b1fc
         </button>
     </header>
     <div class="main-wrapper">

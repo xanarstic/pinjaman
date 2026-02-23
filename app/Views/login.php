@@ -63,61 +63,27 @@
             background: #ec4899;
             top: 40%; left: 60%;
             animation-delay: 4s;
-=======
-            background: radial-gradient(circle at top right, var(--navy-lighter), var(--dark-navy));
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0;
-            overflow-x: hidden;
-        }
-
-        /* Dekorasi Lingkaran Latar Belakang */
-        .bg-circle {
-            position: absolute;
-            width: 300px;
-            height: 300px;
-            background: var(--primary-yellow);
-            filter: blur(80px);
-            border-radius: 50%;
-            opacity: 0.1;
-            z-index: -1;
->>>>>>> 76654e63e3b235c2566e0adcd60cb34f8944b1fc
         }
 
         .login-container {
             width: 100%;
-<<<<<<< HEAD
             max-width: 400px;
             padding: 20px;
             margin: auto;
-=======
-            max-width: 420px;
-            padding: 20px;
->>>>>>> 76654e63e3b235c2566e0adcd60cb34f8944b1fc
         }
 
         .glass-card {
             background: rgba(255, 255, 255, 0.03);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-<<<<<<< HEAD
             border: 1px solid var(--glass-border);
-=======
-            border: 1px solid rgba(255, 255, 255, 0.1);
->>>>>>> 76654e63e3b235c2566e0adcd60cb34f8944b1fc
             border-radius: 24px;
             overflow: hidden;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
 
         .login-header {
-<<<<<<< HEAD
             background: rgba(250, 204, 21, 0.9);
-=======
-            background: var(--primary-yellow);
->>>>>>> 76654e63e3b235c2566e0adcd60cb34f8944b1fc
             padding: 45px 20px;
             text-align: center;
             position: relative;
@@ -145,24 +111,15 @@
         }
 
         .input-group {
-<<<<<<< HEAD
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
-=======
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
->>>>>>> 76654e63e3b235c2566e0adcd60cb34f8944b1fc
             border-radius: 12px;
             transition: all 0.3s ease;
         }
 
         .input-group:focus-within {
             border-color: var(--primary-yellow);
-<<<<<<< HEAD
             box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.2);
-=======
-            box-shadow: 0 0 0 4px rgba(250, 204, 21, 0.1);
->>>>>>> 76654e63e3b235c2566e0adcd60cb34f8944b1fc
         }
 
         .input-group-text {
@@ -170,10 +127,7 @@
             border: none;
             color: rgba(255, 255, 255, 0.4);
             padding-left: 15px;
-<<<<<<< HEAD
             padding-right: 10px;
-=======
->>>>>>> 76654e63e3b235c2566e0adcd60cb34f8944b1fc
         }
 
         .form-control {
@@ -199,11 +153,7 @@
             border: none;
             border-radius: 12px;
             padding: 14px;
-<<<<<<< HEAD
             font-weight: 600;
-=======
-            font-weight: 700;
->>>>>>> 76654e63e3b235c2566e0adcd60cb34f8944b1fc
             text-transform: uppercase;
             letter-spacing: 1px;
             transition: all 0.3s ease;
@@ -222,17 +172,12 @@
             padding-right: 15px;
         }
 
-<<<<<<< HEAD
-=======
-        /* Animasi Alert */
->>>>>>> 76654e63e3b235c2566e0adcd60cb34f8944b1fc
         .alert {
             background: rgba(239, 68, 68, 0.1);
             border: 1px solid rgba(239, 68, 68, 0.2);
             color: #fca5a5;
             border-radius: 12px;
             font-size: 0.9rem;
-<<<<<<< HEAD
             animation: shake 0.5s ease-in-out;
         }
 
@@ -244,22 +189,15 @@
             0%, 100% { transform: translateX(0); }
             25% { transform: translateX(-5px); }
             75% { transform: translateX(5px); }
-=======
->>>>>>> 76654e63e3b235c2566e0adcd60cb34f8944b1fc
         }
     </style>
 </head>
 
 <body>
 
-<<<<<<< HEAD
     <div class="bg-shape shape-1"></div>
     <div class="bg-shape shape-2"></div>
     <div class="bg-shape shape-3"></div>
-=======
-    <div class="bg-circle" style="top: 10%; left: 20%;"></div>
-    <div class="bg-circle" style="bottom: 10%; right: 20%; background: #6366f1;"></div>
->>>>>>> 76654e63e3b235c2566e0adcd60cb34f8944b1fc
 
     <div class="login-container">
         <div class="glass-card">
@@ -273,11 +211,7 @@
             <div class="card-body p-4 p-md-5">
                 <div class="text-center mb-4">
                     <h5 class="text-white fw-bold mb-1">Akses Masuk</h5>
-<<<<<<< HEAD
                     <p class="text-white-50 small">Silakan login untuk melanjutkan</p>
-=======
-                    <p class="text-white-50 small">Gunakan akun administrator Anda</p>
->>>>>>> 76654e63e3b235c2566e0adcd60cb34f8944b1fc
                 </div>
 
                 <?php if (session()->getFlashdata('error')): ?>
@@ -289,11 +223,7 @@
 
                 <form method="post" action="<?= site_url('home/loginProcess') ?>">
                     <div class="mb-3">
-<<<<<<< HEAD
                         <label class="form-label small text-uppercase">Email</label>
-=======
-                        <label class="form-label">EMAIL</label>
->>>>>>> 76654e63e3b235c2566e0adcd60cb34f8944b1fc
                         <div class="input-group">
                             <span class="input-group-text"><i class="bi bi-envelope-fill"></i></span>
                             <input type="email" name="email" class="form-control" placeholder="admin@email.com"
@@ -302,11 +232,7 @@
                     </div>
 
                     <div class="mb-4">
-<<<<<<< HEAD
                         <label class="form-label small text-uppercase">Password</label>
-=======
-                        <label class="form-label">PASSWORD</label>
->>>>>>> 76654e63e3b235c2566e0adcd60cb34f8944b1fc
                         <div class="input-group">
                             <span class="input-group-text"><i class="bi bi-key-fill"></i></span>
                             <input type="password" name="password" id="passwordInput" class="form-control"
@@ -317,7 +243,6 @@
                         </div>
                     </div>
 
-<<<<<<< HEAD
                     <!-- Human Verification -->
                     <div class="mb-4">
                         <label class="form-label small text-uppercase text-yellow">Human Verification</label>
@@ -329,8 +254,6 @@
                         </div>
                     </div>
 
-=======
->>>>>>> 76654e63e3b235c2566e0adcd60cb34f8944b1fc
                     <button type="submit" class="btn btn-login w-100">
                         Masuk Sistem <i class="bi bi-arrow-right-short ms-1 fs-5"></i>
                     </button>
@@ -339,11 +262,7 @@
         </div>
 
         <p class="text-center text-white-50 mt-4 small">
-<<<<<<< HEAD
             &copy; <?= date('Y') ?> <strong>Yellowface</strong><br>
-=======
-            &copy; <?= date('Y') ?> <strong>Yellowface Production</strong><br>
->>>>>>> 76654e63e3b235c2566e0adcd60cb34f8944b1fc
             Secure Inventory Management
         </p>
     </div>

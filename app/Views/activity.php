@@ -1,9 +1,5 @@
 <div class="container-fluid">
-<<<<<<< HEAD
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
-=======
-    <div class="d-flex justify-content-between align-items-center mb-4">
->>>>>>> 76654e63e3b235c2566e0adcd60cb34f8944b1fc
         <h3 class="fw-bold"><i class="bi bi-journal-text me-2 text-yellow"></i>Activity Log (Audit Trail)</h3>
         <span class="badge bg-dark text-yellow border border-warning px-3 py-2 shadow-sm">
             <i class="bi bi-shield-lock-fill me-1"></i> Admin Audit Mode
@@ -14,7 +10,6 @@
         style="border-radius: 15px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1) !important;">
         <form method="get" action="<?= site_url('home/activity') ?>" class="card-body p-4">
             <div class="row g-2">
-<<<<<<< HEAD
                 <!-- Baris 1: Tanggal (Split 2 Kolom di HP) -->
                 <div class="col-6 col-md-3">
                     <label class="small fw-bold text-muted mb-1 text-uppercase">Dari Tanggal</label>
@@ -27,19 +22,6 @@
 
                 <!-- Baris 2: User & Aksi -->
                 <div class="col-6 col-md-2">
-=======
-                <div class="col-md-3">
-                    <label class="small fw-bold text-muted mb-1 text-uppercase">Rentang Tanggal</label>
-                    <div class="input-group input-group-sm">
-                        <input type="date" name="start_date" class="form-control"
-                            value="<?= $filter['start_date'] ?? '' ?>">
-                        <span class="input-group-text bg-dark text-white border-0">s/d</span>
-                        <input type="date" name="end_date" class="form-control"
-                            value="<?= $filter['end_date'] ?? '' ?>">
-                    </div>
-                </div>
-                <div class="col-md-2">
->>>>>>> 76654e63e3b235c2566e0adcd60cb34f8944b1fc
                     <label class="small fw-bold text-muted mb-1 text-uppercase">User</label>
                     <select name="user_id" class="form-select form-select-sm">
                         <option value="">Semua User</option>
@@ -49,16 +31,11 @@
                         <?php endforeach; ?>
                     </select>
                 </div>
-<<<<<<< HEAD
                 <div class="col-6 col-md-3">
-=======
-                <div class="col-md-3">
->>>>>>> 76654e63e3b235c2566e0adcd60cb34f8944b1fc
                     <label class="small fw-bold text-muted mb-1 text-uppercase">Cari Tindakan / Aksi</label>
                     <input type="text" name="action" class="form-control form-control-sm"
                         placeholder="Contoh: Hapus, Login, Update..." value="<?= $filter['action'] ?? '' ?>">
                 </div>
-<<<<<<< HEAD
 
                 <!-- Baris 3: Jam (Split 2 Kolom di HP) -->
                 <div class="col-6 col-md-1">
@@ -72,18 +49,6 @@
 
                 <!-- Tombol -->
                 <div class="col-12 col-md-2 d-flex align-items-end gap-1">
-=======
-                <div class="col-md-2">
-                    <label class="small fw-bold text-muted mb-1 text-uppercase">Jam</label>
-                    <div class="input-group input-group-sm">
-                        <input type="time" name="start_time" class="form-control"
-                            value="<?= $filter['start_time'] ?? '' ?>">
-                        <input type="time" name="end_time" class="form-control"
-                            value="<?= $filter['end_time'] ?? '' ?>">
-                    </div>
-                </div>
-                <div class="col-md-2 d-flex align-items-end">
->>>>>>> 76654e63e3b235c2566e0adcd60cb34f8944b1fc
                     <button type="submit" class="btn btn-warning btn-sm w-100 fw-bold me-1 text-dark shadow-sm">
                         <i class="bi bi-funnel-fill"></i>
                     </button>
