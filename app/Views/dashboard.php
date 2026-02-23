@@ -19,20 +19,10 @@
                 <a href="<?= site_url('home/log') ?>" class="btn btn-dark rounded-pill px-4 py-2 fw-bold shadow-sm">
                     <i class="bi bi-clock-history me-2"></i> Riwayat
                 </a>
-=======
-    <div class="card border-0 shadow-sm p-4 mb-4"
-        style="background: linear-gradient(135deg, #facc15 0%, #fef08a 100%); border-radius: 20px;">
-        <div class="row align-items-center">
-            <div class="col-md-8">
-                <h3 class="fw-bold mb-1 text-dark">Selamat Datang, <?= session()->get('nama') ?>! 👋</h3>
-                <p class="mb-0 text-dark opacity-75">"Jaga kebersihan barang, jangan lupa dirawat, dan taro di tempat
-                    yang sesuai ya!"</p>
->>>>>>> 76654e63e3b235c2566e0adcd60cb34f8944b1fc
             </div>
         </div>
     </div>
 
-<<<<<<< HEAD
     <!-- Stats Grid -->
     <div class="row g-3 mb-4">
         <!-- Total Barang -->

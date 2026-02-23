@@ -15,16 +15,12 @@
             --primary-yellow: #facc15;
             --dark-navy: #0f172a;
             --navy-lighter: #1e293b;
-<<<<<<< HEAD
             --glass-bg: rgba(255, 255, 255, 0.05);
             --glass-border: rgba(255, 255, 255, 0.1);
-=======
->>>>>>> 76654e63e3b235c2566e0adcd60cb34f8944b1fc
         }
 
         body {
             font-family: 'Poppins', sans-serif;
-<<<<<<< HEAD
             background-color: var(--dark-navy);
             min-height: 100vh;
             min-height: 100dvh;

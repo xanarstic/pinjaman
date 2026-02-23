@@ -111,6 +111,7 @@
                 <tbody class="text-main">
                     <?php if (empty($logs)): ?>
                         <tr>
+                            <td colspan="6" class="text-center py-5">
                                 <i class="bi bi-info-circle display-4 text-muted opacity-25"></i>
                                 <p class="text-muted mt-3">Tidak ada data peminjaman yang sesuai filter.</p>
                             </td>
