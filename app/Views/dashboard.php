@@ -34,7 +34,7 @@
                     </div>
                     <span class="small text-muted fw-bold text-uppercase">Total Aset</span>
                 </div>
-                <h2 class="fw-bold mb-0 text-main counter" data-target="<?= $totalBarang ?>">0</h2>
+                <h2 class="fw-bold mb-0 text-primary counter" data-target="<?= $totalBarang ?>">0</h2>
                 <small class="text-secondary" style="font-size: 0.7rem;">Unit Barang</small>
             </div>
         </div>
@@ -48,7 +48,7 @@
                     </div>
                     <span class="small text-muted fw-bold text-uppercase">Dipinjam</span>
                 </div>
-                <h2 class="fw-bold mb-0 text-main counter" data-target="<?= $barangDipakai ?>">0</h2>
+                <h2 class="fw-bold mb-0 text-warning counter" data-target="<?= $barangDipakai ?>">0</h2>
                 <small class="text-secondary" style="font-size: 0.7rem;">Unit Sedang Keluar</small>
             </div>
         </div>
@@ -62,7 +62,7 @@
                     </div>
                     <span class="small text-muted fw-bold text-uppercase">Tersedia</span>
                 </div>
-                <h2 class="fw-bold mb-0 text-main counter" data-target="<?= $totalBarang - $barangDipakai ?>">0</h2>
+                <h2 class="fw-bold mb-0 text-success counter" data-target="<?= $totalBarang - $barangDipakai ?>">0</h2>
                 <small class="text-secondary" style="font-size: 0.7rem;">Siap Dipinjam</small>
             </div>
         </div>
@@ -76,63 +76,152 @@
                     </div>
                     <span class="small text-muted fw-bold text-uppercase">Pengguna</span>
                 </div>
-                <h2 class="fw-bold mb-0 text-main counter" data-target="<?= $totalUser ?>">0</h2>
+                <h2 class="fw-bold mb-0 text-info counter" data-target="<?= $totalUser ?>">0</h2>
                 <small class="text-secondary" style="font-size: 0.7rem;">Terdaftar</small>
             </div>
         </div>
     </div>
 
+    <!-- NOTIFICATION ALERT SECTION -->
+    <?php if(session()->get('role') === 'admin' || session()->get('role') === 'asistant'): ?>
+        <?php if($pendingRequest > 0 || $pendingReturn > 0): ?>
+            <div class="alert alert-warning border-0 shadow-sm d-flex align-items-center mb-4" role="alert">
+                <i class="bi bi-exclamation-triangle-fill fs-4 me-3"></i>
+                <div>
+                    <h6 class="fw-bold mb-1">Perhatian Diperlukan!</h6>
+                    <div class="small">
+                        <?php if($pendingRequest > 0): ?>
+                            Ada <strong><?= $pendingRequest ?></strong> permintaan peminjaman baru menunggu persetujuan.<br>
+                        <?php endif; ?>
+                        <?php if($pendingReturn > 0): ?>
+                            Ada <strong><?= $pendingReturn ?></strong> pengembalian barang menunggu verifikasi fisik.
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
+    <?php endif; ?>
+
+    <?php if(session()->get('role') === 'user'): ?>
+        <?php if($userActive > 0): ?>
+            <div class="alert alert-success border-0 shadow-sm d-flex align-items-center mb-4" role="alert" style="background-color: rgba(25, 135, 84, 0.1); color: #0f5132;">
+                <i class="bi bi-check-circle-fill fs-4 me-3 text-success"></i>
+                <div>
+                    <h6 class="fw-bold mb-1">Peminjaman Aktif</h6>
+                    <div class="small">
+                        Permintaan Anda telah disetujui! Saat ini Anda sedang meminjam <strong class="text-dark"><?= $userActive ?></strong> barang.
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
+    <?php endif; ?>
+
     <!-- Quick Shortcuts -->
     <h5 class="fw-bold text-main mb-3"><i class="bi bi-grid-fill me-2 text-yellow"></i>Akses Cepat</h5>
     <div class="row g-3">
-        <div class="col-12 col-md-4">
-            <a href="<?= site_url('home/barang') ?>" class="card border-0 shadow-sm p-3 theme-card text-decoration-none hover-scale h-100 d-flex flex-row align-items-center">
-                <div class="bg-yellow text-dark rounded-3 p-3 me-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-                    <i class="bi bi-search fs-4"></i>
-                </div>
-                <div>
-                    <h6 class="fw-bold text-main mb-1">Cari Barang</h6>
-                    <p class="text-muted small mb-0">Lihat katalog & stok.</p>
-                </div>
-            </a>
-        </div>
         
-        <div class="col-12 col-md-4">
-            <a href="<?= site_url('home/log') ?>" class="card border-0 shadow-sm p-3 theme-card text-decoration-none hover-scale h-100 d-flex flex-row align-items-center">
-                <div class="bg-yellow text-dark rounded-3 p-3 me-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-                    <i class="bi bi-plus-lg fs-4"></i>
-                </div>
-                <div>
-                    <h6 class="fw-bold text-main mb-1">Pinjam Barang</h6>
-                    <p class="text-muted small mb-0">Buat permohonan baru.</p>
-                </div>
-            </a>
-        </div>
+        <?php if(session()->get('role') === 'user'): ?>
+            <!-- USER SHORTCUTS -->
+            <div class="col-12 col-md-4">
+                <a href="<?= site_url('home/barang') ?>" class="card border-0 shadow-sm p-3 theme-card text-decoration-none hover-scale h-100 d-flex flex-row align-items-center">
+                    <div class="bg-primary bg-opacity-10 text-primary rounded-3 p-3 me-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                        <i class="bi bi-search fs-4"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold text-main mb-1">Cari & Pinjam</h6>
+                        <p class="text-muted small mb-0">Lihat katalog barang.</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col-12 col-md-4">
+                <a href="<?= site_url('home/log?status=menunggu_persetujuan') ?>" class="card border-0 shadow-sm p-3 theme-card text-decoration-none hover-scale h-100 d-flex flex-row align-items-center">
+                    <div class="bg-warning bg-opacity-10 text-warning rounded-3 p-3 me-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                        <i class="bi bi-hourglass-split fs-4"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold text-main mb-1">Status Request</h6>
+                        <p class="text-muted small mb-0"><?= $userPending ?> Permintaan pending.</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col-12 col-md-4">
+                <a href="<?= site_url('home/log?status=dipinjam') ?>" class="card border-0 shadow-sm p-3 theme-card text-decoration-none hover-scale h-100 d-flex flex-row align-items-center">
+                    <div class="bg-success bg-opacity-10 text-success rounded-3 p-3 me-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                        <i class="bi bi-box-seam fs-4"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold text-main mb-1">Barang Saya</h6>
+                        <p class="text-muted small mb-0"><?= $userActive ?> Barang sedang dipinjam.</p>
+                    </div>
+                </a>
+            </div>
 
-        <?php if(session()->get('role') === 'admin' || session()->get('role') === 'asistant'): ?>
-        <div class="col-12 col-md-4">
-            <a href="<?= site_url('home/log?status=menunggu_persetujuan') ?>" class="card border-0 shadow-sm p-3 theme-card text-decoration-none hover-scale h-100 d-flex flex-row align-items-center">
-                <div class="bg-yellow text-dark rounded-3 p-3 me-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-                    <i class="bi bi-check2-square fs-4"></i>
-                </div>
-                <div>
-                    <h6 class="fw-bold text-main mb-1">Verifikasi Request</h6>
-                    <p class="text-muted small mb-0">Cek permintaan masuk.</p>
-                </div>
-            </a>
-        </div>
-        <?php else: ?>
-        <div class="col-12 col-md-4">
-            <a href="<?= site_url('home/log?status=dipinjam') ?>" class="card border-0 shadow-sm p-3 theme-card text-decoration-none hover-scale h-100 d-flex flex-row align-items-center">
-                <div class="bg-yellow text-dark rounded-3 p-3 me-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-                    <i class="bi bi-box-arrow-in-down fs-4"></i>
-                </div>
-                <div>
-                    <h6 class="fw-bold text-main mb-1">Barang Aktif</h6>
-                    <p class="text-muted small mb-0">Cek barang bawaan Anda.</p>
-                </div>
-            </a>
-        </div>
+        <?php elseif(session()->get('role') === 'asistant'): ?>
+            <!-- ASSISTANT SHORTCUTS -->
+            <div class="col-12 col-md-6">
+                <a href="<?= site_url('home/log?status=menunggu_persetujuan') ?>" class="card border-0 shadow-sm p-3 theme-card text-decoration-none hover-scale h-100 d-flex flex-row align-items-center position-relative">
+                    <?php if($pendingRequest > 0): ?>
+                        <span class="position-absolute top-0 end-0 translate-middle badge rounded-pill bg-danger m-3"><?= $pendingRequest ?></span>
+                    <?php endif; ?>
+                    <div class="bg-yellow text-dark rounded-3 p-3 me-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                        <i class="bi bi-check2-square fs-4"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold text-main mb-1">Konfirmasi Peminjaman</h6>
+                        <p class="text-muted small mb-0">Setujui permintaan barang baru.</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col-12 col-md-6">
+                <a href="<?= site_url('home/log?status=menunggu_konfirmasi') ?>" class="card border-0 shadow-sm p-3 theme-card text-decoration-none hover-scale h-100 d-flex flex-row align-items-center position-relative">
+                    <?php if($pendingReturn > 0): ?>
+                        <span class="position-absolute top-0 end-0 translate-middle badge rounded-pill bg-danger m-3"><?= $pendingReturn ?></span>
+                    <?php endif; ?>
+                    <div class="bg-info bg-opacity-10 text-info rounded-3 p-3 me-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                        <i class="bi bi-arrow-return-left fs-4"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold text-main mb-1">Konfirmasi Pengembalian</h6>
+                        <p class="text-muted small mb-0">Cek fisik barang yang kembali.</p>
+                    </div>
+                </a>
+            </div>
+
+        <?php elseif(session()->get('role') === 'admin'): ?>
+            <!-- ADMIN SHORTCUTS -->
+            <div class="col-12 col-md-4">
+                <a href="<?= site_url('home/user') ?>" class="card border-0 shadow-sm p-3 theme-card text-decoration-none hover-scale h-100 d-flex flex-row align-items-center">
+                    <div class="bg-primary bg-opacity-10 text-primary rounded-3 p-3 me-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                        <i class="bi bi-people-fill fs-4"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold text-main mb-1">Manajemen User</h6>
+                        <p class="text-muted small mb-0">Kelola akun pengguna.</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col-12 col-md-4">
+                <a href="<?= site_url('home/activity') ?>" class="card border-0 shadow-sm p-3 theme-card text-decoration-none hover-scale h-100 d-flex flex-row align-items-center">
+                    <div class="bg-danger bg-opacity-10 text-danger rounded-3 p-3 me-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                        <i class="bi bi-shield-check fs-4"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold text-main mb-1">Audit Sistem</h6>
+                        <p class="text-muted small mb-0">Pantau aktivitas log.</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col-12 col-md-4">
+                <a href="<?= site_url('home/setting') ?>" class="card border-0 shadow-sm p-3 theme-card text-decoration-none hover-scale h-100 d-flex flex-row align-items-center">
+                    <div class="bg-secondary bg-opacity-10 text-secondary rounded-3 p-3 me-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                        <i class="bi bi-gear-fill fs-4"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold text-main mb-1">Pengaturan</h6>
+                        <p class="text-muted small mb-0">Konfigurasi aplikasi.</p>
+                    </div>
+                </a>
+            </div>
         <?php endif; ?>
     </div>
 </div>

@@ -44,10 +44,17 @@
 
         <?php foreach ($barang as $b): ?>
             <div class="col-6 col-md-4 col-lg-3">
-                <div class="card h-100 shadow-sm position-relative overflow-hidden theme-card card-barang <?= ($b['status'] === 'dipakai') ? 'item-dipakai' : '' ?>">
+                <div class="card h-100 shadow-sm position-relative overflow-hidden theme-card card-barang <?= ($b['status'] === 'dipakai' || $b['status'] === 'menunggu_konfirmasi') ? 'item-dipakai' : '' ?>">
                     
-                    <span class="badge position-absolute top-0 end-0 m-3 <?= $b['status'] === 'dipakai' ? 'bg-danger' : 'bg-success' ?>" style="z-index: 2; font-size: 0.7rem;">
-                        <?= strtoupper(!empty($b['status']) ? $b['status'] : 'tersedia') ?>
+                    <?php
+                        $badgeClass = 'bg-success';
+                        if ($b['status'] === 'dipakai') $badgeClass = 'bg-danger';
+                        if ($b['status'] === 'menunggu_konfirmasi') $badgeClass = 'bg-warning text-dark';
+                        
+                        $statusText = str_replace('_', ' ', $b['status'] ?? 'tersedia');
+                    ?>
+                    <span class="badge position-absolute top-0 end-0 m-3 <?= $badgeClass ?>" style="z-index: 2; font-size: 0.7rem;">
+                        <?= strtoupper($statusText) ?>
                     </span>
                     
                     <div class="image-box theme-img-bg text-center">
@@ -64,9 +71,11 @@
                         <h6 class="fw-bold mb-1 text-truncate text-main"><?= esc($b['nama_barang']) ?></h6>
                         
                         <div class="small mb-2 mb-md-3 flex-grow-1" style="font-size: 0.75rem;">
-                            <?php if ($b['status'] === 'dipakai'): ?>
-                                <div class="p-2 rounded status-pinjam-box mt-2">
-                                    <i class="bi bi-person-fill me-1"></i> <span class="d-none d-md-inline">Dipakai:</span> <strong class="text-main"><?= esc($b['user_nama']) ?></strong>
+                            <?php if ($b['status'] === 'dipakai' || $b['status'] === 'menunggu_konfirmasi'): ?>
+                                <div class="p-2 rounded mt-2 <?= $b['status'] === 'dipakai' ? 'status-pinjam-box' : 'status-tunggu-box' ?>">
+                                    <i class="bi bi-person-fill me-1"></i> 
+                                    <span class="d-none d-md-inline"><?= $b['status'] === 'dipakai' ? 'Dipakai:' : 'Oleh:' ?></span> 
+                                    <strong class="text-main"><?= esc($b['user_nama']) ?></strong>
                                 </div>
                             <?php else: ?>
                                 <span class="text-secondary small"><i class="bi bi-check-circle-fill text-success me-1"></i> Tersedia di gudang</span>
@@ -167,6 +176,7 @@
 
     /* Info Box Peminjam */
     .status-pinjam-box { background-color: rgba(239, 68, 68, 0.08); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.15); }
+    .status-tunggu-box { background-color: rgba(250, 204, 21, 0.1); color: #eab308; border: 1px solid rgba(250, 204, 21, 0.2); }
 
     /* Animasi & Hover */
     .card-barang { border-radius: 20px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }

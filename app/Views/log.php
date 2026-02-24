@@ -13,6 +13,21 @@
         </div>
     </div>
 
+    <!-- ALERT KHUSUS ASSISTANT/ADMIN -->
+    <?php if(session()->get('role') === 'admin' || session()->get('role') === 'asistant'): ?>
+        <?php if($pendingRequest > 0 && ($filter['status'] ?? '') !== 'menunggu_persetujuan'): ?>
+            <div class="alert alert-warning border-0 shadow-sm d-flex align-items-center mb-4 py-2" role="alert">
+                <i class="bi bi-bell-fill me-2"></i>
+                <small>Terdapat <strong><?= $pendingRequest ?></strong> permintaan baru. <a href="<?= site_url('home/log?status=menunggu_persetujuan') ?>" class="fw-bold alert-link text-decoration-underline">Cek Sekarang</a></small>
+            </div>
+        <?php elseif($pendingReturn > 0 && ($filter['status'] ?? '') !== 'menunggu_konfirmasi'): ?>
+            <div class="alert alert-info border-0 shadow-sm d-flex align-items-center mb-4 py-2" role="alert">
+                <i class="bi bi-box-seam me-2"></i>
+                <small>Terdapat <strong><?= $pendingReturn ?></strong> barang dikembalikan. <a href="<?= site_url('home/log?status=menunggu_konfirmasi') ?>" class="fw-bold alert-link text-decoration-underline">Verifikasi Sekarang</a></small>
+            </div>
+        <?php endif; ?>
+    <?php endif; ?>
+
     <!-- Filter & Search Section -->
     <div class="card border-0 shadow-sm mb-4 theme-card p-3">
         <form action="" method="get">
@@ -67,7 +82,9 @@
                 href="<?= site_url('home/log?status=menunggu_persetujuan') ?>">
                 Request Baru
                 <?php if (session()->get('role') !== 'user'): ?>
-                    <span class="badge bg-warning text-dark ms-1" style="font-size: 0.6rem;">ACC</span>
+                    <?php if(isset($pendingRequest) && $pendingRequest > 0): ?>
+                        <span class="badge bg-danger ms-1 rounded-pill" style="font-size: 0.6rem;"><?= $pendingRequest ?></span>
+                    <?php endif; ?>
                 <?php endif; ?>
             </a>
         </li>
@@ -80,7 +97,9 @@
                 href="<?= site_url('home/log?status=menunggu_konfirmasi') ?>">
                 Menunggu Verifikasi
                 <?php if (session()->get('role') !== 'user'): ?>
-                    <span class="badge bg-danger ms-1" style="font-size: 0.6rem;">Cek</span>
+                    <?php if(isset($pendingReturn) && $pendingReturn > 0): ?>
+                        <span class="badge bg-danger ms-1 rounded-pill" style="font-size: 0.6rem;"><?= $pendingReturn ?></span>
+                    <?php endif; ?>
                 <?php endif; ?>
             </a>
         </li>
@@ -125,11 +144,21 @@
                                 <small class="text-secondary small">ID: #<?= $l['user_id'] ?></small>
                             </td>
                             <td>
-                                <?php $items = explode(', ', $l['barang_nama'] ?? '');
-                                foreach ($items as $item): ?>
-                                    <span class="badge bg-yellow text-dark mb-1 fw-bold shadow-sm border-0"
+                                <button class="btn btn-sm btn-light border shadow-sm mb-2 w-100 fw-bold d-flex align-items-center justify-content-center gap-2" 
+                                        style="font-size: 0.75rem; background: rgba(255,255,255,0.05); color: var(--text-main);" 
+                                        onclick='showTransactionDetails(<?= json_encode($l['barang_details'] ?? '') ?>)'>
+                                    <i class="bi bi-grid-fill text-yellow"></i> Lihat Detail & Foto
+                                </button>
+                                <?php 
+                                $details = explode('||', $l['barang_details'] ?? '');
+                                foreach ($details as $det): 
+                                    if(empty($det)) continue;
+                                    $d = explode('^', $det);
+                                    $bNama = $d[0] ?? 'Unknown';
+                                ?>
+                                    <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25 mb-1 me-1"
                                         style="font-size: 0.7rem;">
-                                        <?= esc($item) ?>
+                                        <?= esc($bNama) ?>
                                     </span>
                                 <?php endforeach; ?>
                             </td>
@@ -276,6 +305,23 @@
     </div>
 </div>
 
+<!-- Modal Detail Barang Pop-up (All Items) -->
+<div class="modal fade" id="modalTransactionDetails" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 theme-modal shadow-lg" style="border-radius: 15px;">
+            <div class="modal-header bg-yellow text-dark border-0">
+                <h5 class="modal-title fw-bold"><i class="bi bi-images me-2"></i>Detail Barang</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="row g-3" id="transaction-items-container">
+                    <!-- Items injected via JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <style>
     /* CSS CSS CSS (Sama seperti sebelumnya) */
     .nav-adaptive {
@@ -393,5 +439,37 @@
 
     function confirmDelLog(url) {
         confirmAction(url, 'Hapus log peminjaman ini secara permanen?', 'warning');
+    }
+
+    function showTransactionDetails(rawString) {
+        const container = document.getElementById('transaction-items-container');
+        container.innerHTML = ''; 
+
+        if (!rawString) return;
+
+        const items = rawString.split('||');
+        items.forEach(item => {
+            if(!item) return;
+            const parts = item.split('^');
+            const name = parts[0] || 'Unknown';
+            const photo = parts[1] || '';
+            const imgSrc = photo ? "<?= base_url('uploads/barang/') ?>/" + photo : "https://placehold.co/400x300/1e293b/FFF?text=No+Image";
+
+            const html = `
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="card h-100 border-0 shadow-sm overflow-hidden" style="background: rgba(255,255,255,0.05);">
+                        <div class="position-relative" style="height: 200px;">
+                            <img src="${imgSrc}" class="w-100 h-100" style="object-fit: cover;">
+                        </div>
+                        <div class="card-body p-3 text-center">
+                            <h6 class="fw-bold mb-0 text-main">${name}</h6>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', html);
+        });
+
+        new bootstrap.Modal(document.getElementById('modalTransactionDetails')).show();
     }
 </script>

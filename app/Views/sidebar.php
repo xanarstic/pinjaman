@@ -2,14 +2,16 @@
     style="background: var(--sidebar-bg); width: 280px; position: sticky; top: 0; height: 100vh; z-index: 1000;">
 
     <div class="text-center mb-4">
-        <?php if (($setting['sidebar_type'] ?? 'text') == 'image' && !empty($setting['logo'] ?? '')): ?>
-            <img src="<?= base_url('uploads/settings/' . $setting['logo']) ?>" alt="Logo" class="img-fluid mb-2"
-                style="max-height: 180px; width: auto; max-width: 90%; object-fit: contain;">
-        <?php else: ?>
-            <h4 class="fw-bold mb-0 text-white mt-3">
-                <span class="text-yellow"><?= strtoupper($setting['app_name'] ?? 'YELLOWFACE') ?></span>
-            </h4>
-        <?php endif; ?>
+        <a href="https://yellowface.my.id/" target="_blank" class="text-decoration-none">
+            <?php if (($setting['sidebar_type'] ?? 'text') == 'image' && !empty($setting['logo'] ?? '')): ?>
+                <img src="<?= base_url('uploads/settings/' . $setting['logo']) ?>" alt="Logo" class="img-fluid mb-2"
+                    style="max-height: 180px; width: auto; max-width: 90%; object-fit: contain;">
+            <?php else: ?>
+                <h4 class="fw-bold mb-0 text-white mt-3">
+                    <span class="text-yellow"><?= strtoupper($setting['app_name'] ?? 'YELLOWFACE') ?></span>
+                </h4>
+            <?php endif; ?>
+        </a>
         <small class="text-white-50 d-block mt-1 fw-bold" style="font-size: 0.6rem; letter-spacing: 2px;">
             INVENTORY MANAGEMENT SYSTEM
         </small>
@@ -29,6 +31,7 @@
             ['dashboard', 'speedometer2', 'Dashboard'],
             ['barang', 'box-seam', 'Data Barang'],
             ['log', 'clock-history', 'Log Peminjaman'],
+            ['profile', 'person-circle', 'Profil Saya'],
         ];
 
         // Tambahkan menu khusus Admin

@@ -11,6 +11,10 @@ use App\Models\ActivityLogModel;
 class Home extends BaseController
 {
 	protected $barang, $log, $user, $setting, $activityLog;
+	
+	// Google reCAPTCHA Configuration
+	private $recaptchaSiteKey = '6Lfw_XQsAAAAAN2CwcCVUcXOdDGMTUs8ZFPYOp4f'; 
+	private $recaptchaSecretKey = '6Lfw_XQsAAAAALzlO8PMqMi1wQcZS8Kx0uUn5ftq';
 
 	public function __construct()
 	{
@@ -53,6 +57,17 @@ class Home extends BaseController
 		}
 	}
 
+	// Helper: Hitung jumlah request (dikelompokkan per transaksi/waktu)
+	private function countRequests($status, $userId = null)
+	{
+		$builder = $this->log->select('id')->where('status', $status);
+		if ($userId) {
+			$builder->where('user_id', $userId);
+		}
+		$builder->groupBy('user_id, jam_mulai');
+		return count($builder->findAll());
+	}
+
 	/* ===================== AUTH SECTION ====================== */
 
 	public function login()
@@ -61,34 +76,24 @@ class Home extends BaseController
 			return redirect()->to('home/dashboard');
 		}
 
-		// Generate Math CAPTCHA sederhana
-		$num1 = rand(1, 9);
-		$num2 = rand(1, 9);
-		session()->set('captcha_res', $num1 + $num2);
-		
-		$data = ['captcha_text' => "$num1 + $num2 = ?"];
+		$data = ['site_key' => $this->recaptchaSiteKey];
 		return view('login', $data);
 	}
 
 	public function loginProcess()
 	{
-		// 1. Cek Human Verification (Anti-Bot)
-		$inputCaptcha = $this->request->getPost('captcha');
-		
-		if (!session()->has('captcha_res')) {
-			return redirect()->back()->with('error', 'Sesi kadaluarsa atau IP berubah. Silakan refresh halaman.');
+		// 1. Cek Google reCAPTCHA (Anti-Bot)
+		$token = $this->request->getPost('g-recaptcha-response');
+		if (!$this->verifyRecaptcha($token)) {
+			return redirect()->back()->with('error', 'Verifikasi keamanan gagal. Silakan coba lagi.');
 		}
 
-		if ($inputCaptcha != session()->get('captcha_res')) {
-			return redirect()->back()->with('error', 'Verifikasi gagal! Jawaban hitungan salah.');
-		}
-
-		$email = $this->request->getPost('email');
+		$username = $this->request->getPost('username');
 		$password = $this->request->getPost('password');
-		$user = $this->user->where('email', $email)->first();
+		$user = $this->user->where('username', $username)->first();
 
 		if (!$user || !password_verify($password, $user['password'])) {
-			return redirect()->back()->with('error', 'Email atau Password salah!');
+			return redirect()->back()->with('error', 'Username atau Password salah!');
 		}
 
 		session()->set([
@@ -122,7 +127,13 @@ class Home extends BaseController
 			'setting' => $this->setting->find(1),
 			'totalBarang' => $this->barang->countAll(),
 			'barangDipakai' => $this->barang->where('status', 'dipakai')->countAllResults(),
-			'totalUser' => $this->user->countAll()
+			'totalUser' => $this->user->countAll(),
+			// Data Notifikasi / Alert
+			'pendingRequest' => $this->countRequests('menunggu_persetujuan'),
+			'pendingReturn' => $this->countRequests('menunggu_konfirmasi'),
+			// Data Khusus User
+			'userActive' => $this->log->where('user_id', session()->get('user_id'))->where('status', 'dipinjam')->countAllResults(),
+			'userPending' => $this->countRequests('menunggu_persetujuan', session()->get('user_id')),
 		];
 		echo view('header', $data);
 		echo view('sidebar', $data);
@@ -223,7 +234,8 @@ class Home extends BaseController
 		$endDate = $this->request->getGet('end_date');
 		$targetUser = $this->request->getGet('target_user'); // Khusus Admin
 
-		$builder = $this->log->select('log_peminjaman.*, users.nama AS user_nama, GROUP_CONCAT(barang.nama_barang SEPARATOR ", ") AS barang_nama')
+		$builder = $this->log->select('log_peminjaman.*, users.nama AS user_nama, 
+			GROUP_CONCAT(CONCAT(barang.nama_barang, "^", IFNULL(barang.foto, "")) SEPARATOR "||") AS barang_details')
 			->join('users', 'users.id = log_peminjaman.user_id', 'left')
 			->join('barang', 'barang.id = log_peminjaman.barang_id', 'left');
 
@@ -266,7 +278,10 @@ class Home extends BaseController
 				'start_date' => $startDate,
 				'end_date' => $endDate,
 				'target_user' => $targetUser
-			]
+			],
+			// Data Notifikasi untuk View Log
+			'pendingRequest' => $this->countRequests('menunggu_persetujuan'),
+			'pendingReturn' => $this->countRequests('menunggu_konfirmasi'),
 		];
 
 		$this->recordActivity('Melihat Log Peminjaman');
@@ -411,12 +426,15 @@ class Home extends BaseController
 
 		$data = [
 			'nama' => $this->request->getPost('nama'),
-			'email' => $this->request->getPost('email'),
+			'username' => $this->request->getPost('username'),
 			'password' => password_hash($this->request->getPost('password'), PASSWORD_DEFAULT),
 			'role' => $this->request->getPost('role') // Akan menerima 'admin', 'user', atau 'asistant'
 		];
 
-		$this->user->insert($data);
+		if (!$this->user->insert($data)) {
+			return redirect()->back()->with('error', 'Gagal mendaftarkan user. Username mungkin sudah digunakan.');
+		}
+
 		$this->recordActivity('Mendaftarkan User Baru: ' . $data['nama']);
 		return redirect()->to('home/user')->with('success', 'User berhasil didaftarkan.');
 	}
@@ -429,7 +447,7 @@ class Home extends BaseController
 
 		$data = [
 			'nama' => $this->request->getPost('nama'),
-			'email' => $this->request->getPost('email'),
+			'username' => $this->request->getPost('username'),
 			'role' => $this->request->getPost('role')
 		];
 
@@ -439,7 +457,10 @@ class Home extends BaseController
 			$data['password'] = password_hash($password, PASSWORD_DEFAULT);
 		}
 
-		$this->user->update($id, $data);
+		if (!$this->user->update($id, $data)) {
+			return redirect()->back()->with('error', 'Gagal memperbarui data. Username mungkin sudah digunakan.');
+		}
+
 		$this->recordActivity('Memperbarui Profil User ID: ' . $id);
 		return redirect()->to('home/user')->with('success', 'Data user berhasil diperbarui.');
 	}
@@ -457,6 +478,56 @@ class Home extends BaseController
 		$this->user->delete($id);
 		$this->recordActivity('Menghapus User ID: ' . $id);
 		return redirect()->to('home/user')->with('success', 'User telah dihapus.');
+	}
+
+	/* ===================== PROFIL SAYA (SELF SERVICE) ====================== */
+
+	public function profile()
+	{
+		$this->authCheck();
+		$data = [
+			'title' => 'Profil Saya',
+			'active' => 'profile',
+			'setting' => $this->setting->find(1),
+			'user' => $this->user->find(session()->get('user_id'))
+		];
+		echo view('header', $data);
+		echo view('sidebar', $data);
+		echo view('profile', $data);
+		echo view('footer');
+	}
+
+	public function updateProfile()
+	{
+		$this->authCheck();
+		$id = session()->get('user_id'); // Pastikan ID diambil dari sesi login sendiri
+
+		// 1. KEAMANAN: Verifikasi Password Saat Ini (Wajib)
+		$currentPassword = $this->request->getPost('current_password');
+		$user = $this->user->find($id);
+		if (!$user || !password_verify($currentPassword, $user['password'])) {
+			return redirect()->back()->with('error', 'Verifikasi Gagal: Password saat ini salah. Perubahan ditolak.');
+		}
+
+		$data = [
+			'nama' => $this->request->getPost('nama'),
+			'username' => $this->request->getPost('username'),
+		];
+
+		$password = $this->request->getPost('password');
+		if (!empty($password)) {
+			$data['password'] = password_hash($password, PASSWORD_DEFAULT);
+		}
+
+		if (!$this->user->update($id, $data)) {
+			return redirect()->back()->with('error', 'Gagal memperbarui profil. Username mungkin sudah digunakan.');
+		}
+
+		// Update nama di session agar header langsung berubah
+		session()->set('nama', $data['nama']);
+
+		$this->recordActivity('Memperbarui Profil Sendiri');
+		return redirect()->to('home/profile')->with('success', 'Profil berhasil diperbarui.');
 	}
 
 	/* ===================== AUDIT & ERROR ====================== */
@@ -540,4 +611,35 @@ class Home extends BaseController
 		return redirect()->to('home/setting')->with('success', 'Pengaturan berhasil diperbarui!');
 	}
 
+	// --- HELPER: Verifikasi Token Google reCAPTCHA ---
+	private function verifyRecaptcha($token)
+	{
+		if (empty($token)) return false;
+
+		$url = 'https://www.google.com/recaptcha/api/siteverify';
+		$data = [
+			'secret' => $this->recaptchaSecretKey,
+			'response' => $token,
+			// 'remoteip' => $this->request->getIPAddress()
+		];
+
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_POST, true);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+		curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+		
+		$response = curl_exec($ch);
+		curl_close($ch);
+
+		if ($response === false) return false;
+
+		$body = json_decode($response);
+		if (isset($body->success) && $body->success) {
+			return isset($body->score) ? ($body->score >= 0.3) : true;
+		}
+		return false;
+	}
 }

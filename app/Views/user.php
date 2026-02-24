@@ -16,7 +16,7 @@
                 <thead class="bg-yellow text-dark">
                     <tr>
                         <th class="ps-4 py-3 border-0">INFORMASI PENGGUNA</th>
-                        <th class="py-3 border-0">KONTAK / EMAIL</th>
+                        <th class="py-3 border-0">USERNAME</th>
                         <th class="py-3 text-center border-0">HAK AKSES</th>
                         <th class="pe-4 py-3 text-end border-0">TINDAKAN</th>
                     </tr>
@@ -42,7 +42,7 @@
                                 </div>
                             </td>
                             <td>
-                                <div class="fw-medium"><i class="bi bi-envelope-fill me-2 opacity-50"></i><?= esc($u['email']) ?></div>
+                                <div class="fw-medium"><i class="bi bi-person-fill me-2 opacity-50"></i><?= esc($u['username']) ?></div>
                             </td>
                             <td class="text-center">
                                 <?php if ($u['role'] === 'admin'): ?>
@@ -57,8 +57,8 @@
                                 <div class="btn-group border border-secondary border-opacity-25 rounded shadow-sm overflow-hidden">
                                     <button class="btn btn-sm btn-theme-action text-warning py-2 px-3" 
                                             data-bs-toggle="modal" data-bs-target="#editUserModal"
-                                            data-id="<?= $u['id'] ?>" data-nama="<?= esc($u['nama']) ?>"
-                                            data-email="<?= esc($u['email']) ?>" data-role="<?= $u['role'] ?>">
+                                            data-id="<?= $u['id'] ?>" data-nama="<?= esc($u['nama']) ?>" 
+                                            data-username="<?= esc($u['username']) ?>" data-role="<?= $u['role'] ?>">
                                         <i class="bi bi-pencil-square fs-5"></i>
                                     </button>
                                     <button class="btn btn-sm btn-theme-action text-danger py-2 px-3" 
@@ -88,8 +88,8 @@
                     <input type="text" name="nama" class="form-control theme-input" placeholder="Masukkan nama user..." required>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label fw-bold small text-muted">ALAMAT EMAIL</label>
-                    <input type="email" name="email" class="form-control theme-input" placeholder="user@yellowface.com" required>
+                    <label class="form-label fw-bold small text-muted">USERNAME</label>
+                    <input type="text" name="username" class="form-control theme-input" placeholder="Masukkan username unik..." required>
                 </div>
                 <div class="mb-3">
                     <label class="form-label fw-bold small text-muted">KATA SANDI</label>
@@ -125,8 +125,8 @@
                     <input type="text" name="nama" id="edit-user-nama" class="form-control theme-input" required>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label fw-bold small text-muted">ALAMAT EMAIL</label>
-                    <input type="email" name="email" id="edit-user-email" class="form-control theme-input" required>
+                    <label class="form-label fw-bold small text-muted">USERNAME</label>
+                    <input type="text" name="username" id="edit-user-username" class="form-control theme-input" required>
                 </div>
                 <div class="mb-3">
                     <label class="form-label fw-bold small text-muted">GANTI PASSWORD</label>
@@ -169,7 +169,7 @@
             const button = event.relatedTarget;
             document.getElementById('edit-user-id').value = button.dataset.id;
             document.getElementById('edit-user-nama').value = button.dataset.nama;
-            document.getElementById('edit-user-email').value = button.dataset.email;
+            document.getElementById('edit-user-username').value = button.dataset.username;
             document.getElementById('edit-user-role').value = button.dataset.role;
         });
     }

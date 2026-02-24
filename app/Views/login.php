@@ -10,6 +10,9 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
+    <!-- Google reCAPTCHA Script -->
+    <script src="https://www.google.com/recaptcha/api.js?render=<?= $site_key ?>"></script>
+
     <style>
         :root {
             --primary-yellow: #facc15;
@@ -198,8 +201,10 @@
     <div class="login-container">
         <div class="glass-card">
             <div class="login-header">
-                <i class="bi bi-shield-lock-fill"></i>
-                <h4 class="brand-name mb-0">YELLOWFACE</h4>
+                <a href="https://yellowface.my.id/" target="_blank" class="text-decoration-none">
+                    <i class="bi bi-shield-lock-fill"></i>
+                    <h4 class="brand-name mb-0">YELLOWFACE</h4>
+                </a>
                 <div class="badge bg-dark bg-opacity-10 text-dark fw-bold" style="font-size: 0.7rem;">INVENTORY SYSTEM
                 </div>
             </div>
@@ -219,10 +224,10 @@
 
                 <form method="post" action="<?= site_url('home/loginProcess') ?>">
                     <div class="mb-3">
-                        <label class="form-label small text-uppercase">Email</label>
+                        <label class="form-label small text-uppercase">Username</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="bi bi-envelope-fill"></i></span>
-                            <input type="email" name="email" class="form-control" placeholder="admin@email.com"
+                            <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
+                            <input type="text" name="username" class="form-control" placeholder="contoh: admin"
                                 required>
                         </div>
                     </div>
@@ -239,16 +244,8 @@
                         </div>
                     </div>
 
-                    <!-- Human Verification -->
-                    <div class="mb-4">
-                        <label class="form-label small text-uppercase text-yellow">Human Verification</label>
-                        <div class="input-group">
-                            <span class="input-group-text text-white fw-bold bg-white bg-opacity-10" style="min-width: 80px; justify-content: center;">
-                                <?= $captcha_text ?>
-                            </span>
-                            <input type="number" name="captcha" class="form-control text-center fw-bold" placeholder="Hasil?" required autocomplete="off">
-                        </div>
-                    </div>
+                    <!-- Google reCAPTCHA v3 Token -->
+                    <input type="hidden" name="g-recaptcha-response" id="g-recaptcha-response">
 
                     <button type="submit" class="btn btn-login w-100">
                         Masuk Sistem <i class="bi bi-arrow-right-short ms-1 fs-5"></i>
@@ -258,7 +255,7 @@
         </div>
 
         <p class="text-center text-white-50 mt-4 small">
-            &copy; <?= date('Y') ?> <strong>Yellowface</strong><br>
+            &copy; <?= date('Y') ?> <a href="https://yellowface.my.id/" target="_blank" class="text-white fw-bold text-decoration-none">Yellowface</a><br>
             Secure Inventory Management
         </p>
     </div>
@@ -276,6 +273,25 @@
                 toggleIcon.classList.replace('bi-eye', 'bi-eye-slash');
             }
         }
+
+        // Handle Login Form Submit for reCAPTCHA v3
+        document.querySelector('form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const form = this;
+            const btn = form.querySelector('button[type="submit"]');
+            
+            // Visual feedback
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Memproses...';
+            btn.style.opacity = '0.8';
+            btn.style.pointerEvents = 'none';
+
+            grecaptcha.ready(function() {
+                grecaptcha.execute('<?= $site_key ?>', {action: 'login'}).then(function(token) {
+                    document.getElementById('g-recaptcha-response').value = token;
+                    form.submit();
+                });
+            });
+        });
     </script>
 
 </body>
